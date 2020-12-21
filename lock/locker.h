@@ -107,7 +107,7 @@ public:
 		return ret == 0;
 	}
 	bool signal()
-    {
+	{
 		int ret = 0;
 		pthread_mutex_lock(&m_mutex);
 		ret = pthread_cond_signal(&m_cond);
