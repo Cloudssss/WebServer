@@ -80,13 +80,8 @@ class cond
 public:
 	cond()
 	{
-		if (pthread_mutex_init(&m_mutex, nullptr) != 0)
-		{
-			throw std::exception();
-		}
 		if (pthread_cond_init(&m_cond, nullptr) != 0)
 		{
-			pthread_mutex_destroy(&m_mutex);
 			throw std::exception();
 		}
 		
@@ -94,37 +89,28 @@ public:
 
 	~cond()
 	{
-		pthread_mutex_destroy(&m_mutex);
 		pthread_cond_destroy(&m_cond);
 	}
 
-	bool wait()
+	bool wait(pthread_mutex_t *m_mutex)
 	{
-		int ret = 0;
-		pthread_mutex_lock(&m_mutex);
-		ret = pthread_cond_wait(&m_cond, &m_mutex);
-		pthread_mutex_unlock(&m_mutex);
-		return ret == 0;
+		return pthread_cond_wait(&m_cond, m_mutex) == 0;
 	}
+	bool timewait(pthread_mutex_t *m_mutex, struct timespec t)
+	{
+		return pthread_cond_timedwait(&m_cond, m_mutex, &t);
+	}
+
 	bool signal()
 	{
-		int ret = 0;
-		pthread_mutex_lock(&m_mutex);
-		ret = pthread_cond_signal(&m_cond);
-		pthread_mutex_unlock(&m_mutex);
-		return ret;
+		return pthread_cond_signal(&m_cond) == 0;
 	}
 	bool broadcast()
 	{
-		int ret = 0;
-		pthread_mutex_lock(&m_mutex);
-		ret = pthread_cond_broadcast(&m_cond);
-		pthread_mutex_unlock(&m_mutex);
-		return ret;
+		return pthread_cond_broadcast(&m_cond) == 0;
 	}
 private:
 	pthread_cond_t m_cond;
-	pthread_mutex_t m_mutex;
 };
 
 
