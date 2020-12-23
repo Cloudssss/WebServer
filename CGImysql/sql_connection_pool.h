@@ -20,7 +20,7 @@ public:
 	bool ReleaseConnection(MYSQL *conn);
 
 	int GetFreeConn();
-	void DestoryPool();
+	void DestroyPool();
 	connection_pool *GetInstance();
 
 	void init(string url, string User, string PassWord, string DataBaseName, int Port, int MaxConn, int close_log);
@@ -41,6 +41,16 @@ public:
 	string m_Password;
 	string m_DatabaseName;
 	int m_close_log;
+};
+
+class connectionRAII
+{
+public:
+	connectionRAII(MYSQL **con, connection_pool *connPool);
+	~connectionRAII();
+private:
+	MYSQL *conRAII;
+	connection_pool *poolRAII;
 };
 
 #endif
