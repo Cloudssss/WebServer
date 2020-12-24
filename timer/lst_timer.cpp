@@ -1,5 +1,5 @@
 #include "lst_timer.h"
-#include "../http/http_conn.h"
+// #include "../http/http_conn.h"
 
 sort_timer_lst::sort_timer_lst()
 {
@@ -49,7 +49,7 @@ void sort_timer_lst::adjust_timer(util_timer *timer)
 
 	if(timer == head)
 	{
-		head = head->timer;
+		head = head->next;
 		head->prev = nullptr;
 		timer->next = nullptr;
 		add_timer(timer, head);
@@ -167,6 +167,38 @@ void Utils::addfd(int epollfd, int fd, bool one_shot, int TRIGMode)
 	if(one_shot)
 		event.events |= EPOLLONESHOT;
 	
-	epoll_ctl(epoll_fd, EPOLL_CTL_ADD, fd, &event);
+	epoll_ctl(epollfd, EPOLL_CTL_ADD, fd, &event);
 	setnonblocking(fd);	
+}
+
+void Utils::sig_handle(int sig)
+{
+	int save_errno = errno;
+	int msg = sig;
+	send(u_pipefd[1],(char*)&msg, 1, 0);
+	errno = save_errno;
+}
+
+void Utils::timer_handler()
+{
+	m_timer_lst.tick();
+	alarm(m_TIMESLOT);
+}
+
+void Utils::show_error(int connfd, const char *info)
+{
+	send(connfd, info, strlen(info), 0);
+	close(connfd);
+}
+
+int *Utils::u_pipefd = 0;
+int Utils::u_epollfd = 0;
+
+class Utils;
+void cb_func(client_data *user_data)
+{
+	epoll_ctl(Utils::u_epollfd, EPOLL_CTL_DEL, user_data->sockfd, 0);
+	assert(user_data);
+	close(user_data->sockfd);
+	// 写完http之后记得加上一行 http_conn::m_user_count--;
 }

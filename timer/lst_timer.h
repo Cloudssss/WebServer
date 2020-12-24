@@ -28,7 +28,7 @@ class util_timer;
 
 class client_data
 {
-private:
+public:
 	sockaddr_in address;
 	int sockfd;
 	util_timer *timer;
@@ -38,7 +38,7 @@ class util_timer
 {
 public:
 	util_timer():prev(nullptr),next(nullptr){}
-private:
+public:
 	time_t expire;
 
 	void (* cb_func)(client_data *);
@@ -80,7 +80,7 @@ public:
 
 	void addsig(int sig, void(handle)(int), bool restart = true);
 
-	void time_handler();
+	void timer_handler();
 
 	void show_error(int connfd, const char *info);
 
