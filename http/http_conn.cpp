@@ -366,3 +366,66 @@ http_conn::HTTP_CODE http_conn::process_read()
 	return NO_REQUEST;
 }
 
+http_conn::HTTP_CODE http_conn::do_request()
+{
+	strcpy(m_real_file, doc_root);
+	int len = strlen(doc_root);
+
+	const char *p = strrchr(m_url, '/');
+
+	if( cgi == 1 && (*(p+1) == '2' || *(p+1) == '3'))
+	{
+		char flag = m_url[1];
+		
+		char *m_url_real = (char*)malloc(sizeof(char) * 200);
+		strcpy(m_url_real, "/");
+		strcat(m_url_real, m_url+2);
+		strncpy(m_real_file + len, m_url_real, FILENAME_LEN - len -1);
+		free(m_url_real);
+
+		char name[100], password[100];
+		int i;
+		for( i = 5; m_string[i] != '&' ; ++i)
+			name[i-5] = m_string[i];
+		name[i-5] = '\0';
+
+		int j = 0;
+		for (i = i + 10; m_string[i] != '\0'; ++i, ++j)
+			password[j] = m_string[i];
+		password[j] = '\0';
+
+		if(*(p+1) == '3')
+		{
+			char *sql_insert = (char *)malloc(sizeof(char) * 200);
+			strcpy(sql_insert,"INSERT INTO user(username, passwd) VALUES(");
+			strcat(sql_insert, "'");
+			strcat(sql_insert, name);
+			strcat(sql_insert, "', '");
+			strcat(sql_insert, password);
+			strcat(sql_insert, "')");
+
+			if(users.find(name) == users.end())
+			{
+				m_lock.lock();
+				int res = mysql_query(mysql, sql_insert);
+				users.insert(pair<string, string>(name, password));
+				m_lock.unlock();
+
+				if(!res)
+					strcpy(m_url, "/log.html");
+				else
+					strcpy(m_url, "/registerError.html");
+			}
+			else
+				strcpy(m_url, "/registerError.html");
+		}else if(*(p + 1) == '2')
+		{
+			if (users.find(name) != users.end() && users[name] == password)
+				strcpy(m_url, "/welcome.html");
+			else
+				strcpy(m_url, "/logError.html");
+		}
+	}
+
+	
+}
