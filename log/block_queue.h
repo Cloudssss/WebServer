@@ -38,7 +38,7 @@ public:
 
 	~block_queue()
 	{
-		m_mutex.lock;
+		m_mutex.lock();
 		if (m_array != nullptr)
 		{
 			delete [] m_array;

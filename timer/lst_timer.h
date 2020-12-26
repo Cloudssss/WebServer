@@ -78,7 +78,7 @@ public:
 
 	static void sig_handler(int sig);
 
-	void addsig(int sig, void(handle)(int), bool restart = true);
+	void addsig(int sig, void(handler)(int), bool restart = true);
 
 	void timer_handler();
 
