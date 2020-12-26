@@ -1,5 +1,5 @@
 #include "lst_timer.h"
-// #include "../http/http_conn.h"
+#include "../http/http_conn.h"
 
 sort_timer_lst::sort_timer_lst()
 {
@@ -200,5 +200,5 @@ void cb_func(client_data *user_data)
 	epoll_ctl(Utils::u_epollfd, EPOLL_CTL_DEL, user_data->sockfd, 0);
 	assert(user_data);
 	close(user_data->sockfd);
-	// 写完http之后记得加上一行 http_conn::m_user_count--;
+        http_conn::m_user_count--;
 }
