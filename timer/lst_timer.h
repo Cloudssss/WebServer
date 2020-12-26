@@ -76,7 +76,7 @@ public:
 
 	void addfd(int epollfd, int fd, bool one_shot, int TRIGMode);
 
-	static void sig_handle(int sig);
+	static void sig_handler(int sig);
 
 	void addsig(int sig, void(handle)(int), bool restart = true);
 

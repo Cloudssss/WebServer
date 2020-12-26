@@ -171,7 +171,7 @@ void Utils::addfd(int epollfd, int fd, bool one_shot, int TRIGMode)
 	setnonblocking(fd);	
 }
 
-void Utils::sig_handle(int sig)
+void Utils::sig_handler(int sig)
 {
 	int save_errno = errno;
 	int msg = sig;
